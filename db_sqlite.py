@@ -39,6 +39,18 @@ class DBSqlite:
         )""")
         log.debug("Database created (if not exists)")
 
-# TODO: Read data
+    def insert(self, item):
+        self.cursor.execute("""INSERT OR IGNORE INTO codes VALUES(?,?,?) """,
+                            item)
+        self.cursor.commit()
+        log.debug("Insert data to DB")
+
+    # TODO: Delete data
+    # TODO: Read data
+    def read(self):
+        self.cursor.execute("""SELECT * FROM codes""")
+        rows = self.cursor.fetchall()
+        log.info("Read data from DB")
+        log.debug(rows)
+        return rows
 # TODO: Update data
-# TODO: Delete data
