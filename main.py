@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 
@@ -8,17 +9,26 @@ from db_sqlite import DBSqlite
 
 URL = "https://lovikod.ru/knigi/promokody-litres/"
 LOCAL_COPY_ENV_NAME = "litres.scrape.use-local"
+LOCAL_FILE_NAME_PATH = "./local"
+LOCAL_FILE_NAME = "local.html"
 
-log_main = logging.getLogger(__name__)
-log_main.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
+current_date_in_iso = datetime.datetime.now().date().isoformat()
+log.debug(current_date_in_iso)
 
 def use_local_page() -> str:
-    local_file_name = "local.html"
     local_dir = "./local"
-    local_path = os.path.join(local_dir, local_file_name)
+    local_path = os.path.join(LOCAL_FILE_NAME_PATH, LOCAL_FILE_NAME)
+    log.debug("Local path is: " + local_path)
+    content = get_local_page_content(local_dir, local_path)
+    return content
+
+
+def get_local_page_content(local_dir, local_path):
     if not os.path.exists(local_path):
         if not os.path.exists(local_dir):
             os.makedirs(local_dir)
@@ -30,7 +40,6 @@ def use_local_page() -> str:
     else:
         with open(local_path) as f:
             content = f.read()
-
     return content
 
 
@@ -38,8 +47,9 @@ def get_codes(body) -> dict:
     codes = dict()
 
     for row in body.find_all("tr"):
-        datemark = row.find_all_next("td")[0].text
-        log_main.debug("datemark: " + datemark)
+        exp_date_as_text = row.find_all_next("td")[0].text
+        # log.debug("exp.date: " + exp_date_as_text)
+
         code = row.find_all_next("td")[1]
         if code.text.startswith("[автокод]"):
             code = code.find('a').get('href')
@@ -48,21 +58,21 @@ def get_codes(body) -> dict:
         else:
             code = code.text.replace(u'\xa0', u' ').split(" ")[0]
         desc = row.find_all_next("td")[2].text
-        log_main.debug("desc: " + desc)
-        log_main.debug("code: " + code)
+        # log.debug("description: " + desc)
+        # log.debug("code: " + code)
         codes[code] = desc
     return codes
 
 
 def main():
-    log_main.info("main() start")
+    log.info("main() start")
     content = get_html_content()
     soup = BeautifulSoup(content, "lxml")
     table_body = soup.find(name="tbody")
     codes = get_codes(table_body)
 
     sql = DBSqlite("codes")
-    log_main.info("SQL Connected")
+    log.info("SQL Connected")
     # sql.connect_to_db()
     sql.disconnect()
     # for code in codes.items():
