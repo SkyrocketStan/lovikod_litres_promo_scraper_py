@@ -58,30 +58,33 @@ class Codes:
     def __get_codes_list(self, body):
         for row in body.find_all("tr"):
             exp_date_as_text = row.find_all_next("td")[0].text
-            log.debug("exp.date: " + exp_date_as_text)
+            log.debug("Code exp. text: %s", exp_date_as_text)
 
             code = row.find_all_next("td")[1]
             if code.text.startswith("[автокод]"):
                 code = code.find('a').get('href')
-                # code: str
-                # print(code[:code.find("&")])
+                log.debug('Code URL before clearance: %s', code)
+                code = code[:code.find("&")]
+                log.debug('Code URL after clearance: %s', code)
             else:
                 code = code.text.replace(u'\xa0', u' ').split(" ")[0]
+                log.debug("Text code: %s", code)
             desc = row.find_all_next("td")[2].text
-            log.debug("description: " + desc)
-            log.debug("code: " + code)
+            log.debug("Code description: %s", desc)
+
             self.codes.append((code, desc, exp_date_as_text))
 
-    def __get_codes(self):
+    def get_raw_codes(self):
         log.debug('Private __get_codes. <codes> size is %s', len(self.codes))
         try:
             assert len(self.codes) > 0, f"Codes list is empty"
         except AssertionError:
             log.warning('Codes list is empty')
+
+        log.info('get_raw_codes will return %s items', len(self.codes))
         return self.codes
 
     @staticmethod
-    def get_codes():
+    def get_fresh_raw_codes():
         codes = Codes()
-        log.info('Static codes()')
-        return codes.__get_codes()
+        return codes.get_raw_codes()

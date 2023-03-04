@@ -14,7 +14,7 @@ log.debug(current_date_in_iso)
 
 def main():
     log.info("main() started")
-    codes = Codes.get_codes()
+    codes = Codes.get_fresh_raw_codes()
     log.info('Num of codes: %s', len(codes))
     # sql = DBSqlite("codes")
     # log.info("SQL Connected")
