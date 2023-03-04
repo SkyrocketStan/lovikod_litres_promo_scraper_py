@@ -84,4 +84,4 @@ class Codes:
     def get_fresh_raw_codes():
         codes = Codes()
         log.info('Static codes()')
-        return codes.__get_raw_codes()
+        return codes.get_raw_codes()
