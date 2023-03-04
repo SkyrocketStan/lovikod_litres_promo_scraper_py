@@ -72,7 +72,7 @@ class Codes:
             log.debug("code: " + code)
             self.codes.append((code, desc, exp_date_as_text))
 
-    def __get_raw_codes(self):
+    def get_raw_codes(self):
         log.debug('Private __get_codes. <codes> size is %s', len(self.codes))
         try:
             assert len(self.codes) > 0, f"Codes list is empty"
