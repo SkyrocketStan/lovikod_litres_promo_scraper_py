@@ -16,9 +16,9 @@ class DBSqlite:
         self.db_name = db_name + ".db"
         log.info("A new instance of DBSqlite is created")
         log.debug("SQLite init. db filename: " + self.db_name)
-        self.connect_to_db()
+        self.connect()
 
-    def connect_to_db(self):
+    def connect(self):
         try:
             log.info("Connecting to db " + self.db_name)
             self.db = sl.connect(self.db_name)
@@ -35,7 +35,7 @@ class DBSqlite:
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS codes(
         code TEXT PRIMARY KEY,
         description TEXT,
-        expire_date DATE
+        expire_date TEXT
         )""")
         log.debug("Database created (if not exists)")
 
@@ -45,12 +45,9 @@ class DBSqlite:
         self.cursor.commit()
         log.debug("Insert data to DB")
 
-    # TODO: Delete data
-    # TODO: Read data
     def read(self):
         self.cursor.execute("""SELECT * FROM codes""")
         rows = self.cursor.fetchall()
-        log.info("Read data from DB")
+        log.info("Read %s rows from DB", len(rows))
         log.debug(rows)
         return rows
-# TODO: Update data

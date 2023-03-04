@@ -20,6 +20,7 @@ logging.basicConfig(
 current_date_in_iso = datetime.datetime.now().date().isoformat()
 log.debug(current_date_in_iso)
 
+
 def use_local_page() -> str:
     local_dir = "./local"
     local_path = os.path.join(LOCAL_FILE_NAME_PATH, LOCAL_FILE_NAME)
@@ -43,12 +44,12 @@ def get_local_page_content(local_dir, local_path):
     return content
 
 
-def get_codes(body) -> dict:
-    codes = dict()
+def get_codes(body) -> list:
+    codes = []
 
     for row in body.find_all("tr"):
         exp_date_as_text = row.find_all_next("td")[0].text
-        # log.debug("exp.date: " + exp_date_as_text)
+        log.debug("exp.date: " + exp_date_as_text)
 
         code = row.find_all_next("td")[1]
         if code.text.startswith("[автокод]"):
@@ -58,25 +59,10 @@ def get_codes(body) -> dict:
         else:
             code = code.text.replace(u'\xa0', u' ').split(" ")[0]
         desc = row.find_all_next("td")[2].text
-        # log.debug("description: " + desc)
-        # log.debug("code: " + code)
-        codes[code] = desc
+        log.debug("description: " + desc)
+        log.debug("code: " + code)
+        codes.append((code, desc, exp_date_as_text))
     return codes
-
-
-def main():
-    log.info("main() start")
-    content = get_html_content()
-    soup = BeautifulSoup(content, "lxml")
-    table_body = soup.find(name="tbody")
-    codes = get_codes(table_body)
-
-    sql = DBSqlite("codes")
-    log.info("SQL Connected")
-    # sql.connect_to_db()
-    sql.disconnect()
-    # for code in codes.items():
-    #     print(code)
 
 
 def get_html_content():
@@ -88,6 +74,22 @@ def get_html_content():
         response.raise_for_status()
         content = response.content
     return content
+
+
+def main():
+    log.info("main() start")
+    content = get_html_content()
+    soup = BeautifulSoup(content, "lxml")
+    table_body = soup.find(name="tbody")
+    codes = get_codes(table_body)
+    log.info('Num of codes: %s', len(codes))
+    sql = DBSqlite("codes")
+    log.info("SQL Connected")
+    # sql.connect_to_db()
+    sql.disconnect()
+    # for code in codes.items():
+    #     print(code)
+
 
 
 if __name__ == '__main__':
