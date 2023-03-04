@@ -77,7 +77,7 @@ def get_html_content():
 
 
 def main():
-    log.info("main() start")
+    log.info("main() started")
     content = get_html_content()
     soup = BeautifulSoup(content, "lxml")
     table_body = soup.find(name="tbody")
@@ -85,11 +85,7 @@ def main():
     log.info('Num of codes: %s', len(codes))
     sql = DBSqlite("codes")
     log.info("SQL Connected")
-    # sql.connect_to_db()
     sql.disconnect()
-    # for code in codes.items():
-    #     print(code)
-
 
 
 if __name__ == '__main__':
