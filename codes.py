@@ -81,7 +81,7 @@ class Codes:
         return self.codes
 
     @staticmethod
-    def get_codes():
+    def get_fresh_raw_codes():
         codes = Codes()
         log.info('Static codes()')
         return codes.__get_codes()
