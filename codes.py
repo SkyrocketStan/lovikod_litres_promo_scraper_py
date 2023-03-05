@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,13 +16,63 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 
+def date_str_until_to_obj(date_in) -> datetime:
+    date_as_str = date_in.split(' ')[1]
+    date_obj = datetime.strptime(date_as_str, '%d.%m.%Y')
+    return date_obj
+
+
+def convert_month_rus_to_eng(month_rus: str) -> str:
+    """ Convert russian mont name to eng. Lowercase.
+    In case of error returns "january" """
+    month_rus = month_rus.lower()  # just in case
+    months = {'январь': 'january',
+              'февраль': 'february',
+              'март': 'march',
+              'апрель': 'april',
+              'май': 'may',
+              'июнь': 'june',
+              'июль': 'july',
+              'август': 'august',
+              'сентябрь': 'september',
+              'октябрь': 'october',
+              'декабрь': 'december'}
+    return months.get(month_rus, 'january')
+
+
+def date_str_to_next_month_datetime_obj(date_in: str) -> datetime:
+    """ Returns datetime object with next month (and next year if current month is december"""
+    date_split = date_in.split(' ')
+    month_str = convert_month_rus_to_eng(date_split[0])
+    year_str = date_split[1]
+    date_str = f'{month_str} {year_str}'
+    date_obj = datetime.strptime(date_str, '%B %Y')
+    next_month = date_obj.month + 1 if date_obj.month < 12 else 1
+    year = date_obj.year if date_obj.month < 12 else date_obj.year + 1
+    date_of_next_month = datetime(year, next_month, 1)
+    return date_of_next_month
+
+
+def date_str_to_date_obj(date_in: str) -> datetime:
+    date_in = date_in.lower()
+    if date_in.startswith('до'):
+        return date_str_until_to_obj(date_in)
+    return date_str_to_next_month_datetime_obj(date_in)
+
+
+def strip_ampersand(code):
+    # FIXME: Delete last symbol is no '&' presents in URL
+    code = code[:code.find("&")]
+    return code
+
+
 class Codes:
     def __init__(self):
         self.codes = []
         content = self.__get_html_content()
         soup = BeautifulSoup(content, "lxml")
         table_body = soup.find(name="tbody")
-        self.__get_codes_list(table_body)
+        self.__fill_codes_list(table_body)
         log.info('Codes object created')
 
     def __use_local_page(self) -> str:
@@ -55,24 +106,30 @@ class Codes:
             content = response.content
         return content
 
-    def __get_codes_list(self, body):
+    def __fill_codes_list(self, body):
         for row in body.find_all("tr"):
+            log.info('New row iteration')
             exp_date_as_text = row.find_all_next("td")[0].text
             log.debug("Code exp. text: %s", exp_date_as_text)
+            exp_date = date_str_to_date_obj(exp_date_as_text)
+            exp_date_as_iso_str = exp_date.date().isoformat()
+            log.debug('Code exp. date: %s', exp_date_as_iso_str)
 
             code = row.find_all_next("td")[1]
             if code.text.startswith("[автокод]"):
                 code = code.find('a').get('href')
                 log.debug('Code URL before clearance: %s', code)
-                code = code[:code.find("&")]
-                log.debug('Code URL after clearance: %s', code)
+                code = strip_ampersand(code)
+                log.debug('Code URL after  clearance: %s', code)
             else:
                 code = code.text.replace(u'\xa0', u' ').split(" ")[0]
                 log.debug("Text code: %s", code)
             desc = row.find_all_next("td")[2].text
             log.debug("Code description: %s", desc)
 
-            self.codes.append((code, desc, exp_date_as_text))
+            code_item = (code, desc, exp_date_as_iso_str)
+            log.info(code_item)
+            self.codes.append(code_item)
 
     def get_raw_codes(self):
         log.debug('Private __get_codes. <codes> size is %s', len(self.codes))
