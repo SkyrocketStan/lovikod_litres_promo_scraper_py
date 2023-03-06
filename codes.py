@@ -60,10 +60,11 @@ def date_str_to_date_obj(date_in: str) -> datetime:
     return date_str_to_next_month_datetime_obj(date_in)
 
 
-def strip_ampersand(code):
-    # FIXME: Delete last symbol is no '&' presents in URL
-    code = code[:code.find("&")]
-    return code
+def strip_ampersand(code_url: str):
+    amp_index = code_url.find('&')
+    if amp_index != -1:
+        code_url = code_url[:code_url.find("&")]
+    return code_url
 
 
 class Codes:
