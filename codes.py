@@ -11,7 +11,7 @@ LOCAL_FILE_NAME_PATH = "./local"
 LOCAL_FILE_NAME = "local.html"
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
