@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "lovikod-litres-promo-scraper-py"
+version = "0.1.0"
+description = ""
+authors = ["Stanislav Rakitov <prosperousrf@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "lovikod_litres_promo_scraper_py"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = ">=2.31.0,<2.32.0"
+beautifulsoup4 = ">=4.11.2,<4.12.0"
+lxml = ">=4.9.2,<4.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
