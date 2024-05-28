@@ -9,7 +9,7 @@ packages = [{include = "lovikod_litres_promo_scraper_py"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-requests = ">=2.31.0,<2.32.0"
+requests = ">=2.31.0,<2.33.0"
 beautifulsoup4 = ">=4.11.2,<4.12.0"
 lxml = ">=4.9.2,<4.10.0"
 
