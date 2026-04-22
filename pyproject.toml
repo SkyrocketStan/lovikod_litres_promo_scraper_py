@@ -11,7 +11,7 @@ packages = [{include = "lovikod_litres_promo_scraper_py"}]
 python = "^3.10"
 requests = ">=2.31.0,<2.34.0"
 beautifulsoup4 = ">=4.11.2,<4.12.0"
-lxml = ">=4.9.2,<4.10.0"
+lxml = ">=4.9.2,<6.2.0"
 
 
 [build-system]
